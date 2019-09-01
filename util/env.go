@@ -1,4 +1,4 @@
-package g_base
+package util
 
 import "os"
 
