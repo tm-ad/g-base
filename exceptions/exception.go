@@ -5,6 +5,7 @@ package exceptions
 import (
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
+	"runtime"
 )
 
 // Exception define a custom exceptions interfaces for tmi internal projects
@@ -15,8 +16,6 @@ type Exception interface {
 	Code() int
 	// Message gets the message of exception
 	Message() string
-	// Cause gets the error stack
-	Causes() []error
 }
 
 // IsIException 用于判断 error 是否为自定义的 IException 接口
@@ -34,14 +33,12 @@ const CommonExceptionCode = 819
 type CommonException struct {
 	code    int
 	message string
-	causes  []error
 }
 
 // expJson 用于输出JSON
 type expJson struct {
-	Code    int      `json:"code"`
-	Message string   `json:"message"`
-	Causes  []string `json:"causes"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 // Error 将异常信息输出为JSON字符串，以用于传输后的进一步处理
@@ -49,13 +46,6 @@ func (e *CommonException) Error() string {
 	ej := expJson{
 		Code:    e.Code(),
 		Message: e.Message(),
-		Causes:  []string{},
-	}
-	cs := e.Causes()
-	if cs != nil && len(cs) > 0 {
-		for i := 0; i < len(cs); i++ {
-			ej.Causes = append(ej.Causes, cs[i].Error())
-		}
 	}
 
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -78,25 +68,44 @@ func (e *CommonException) Message() string {
 	return e.message
 }
 
-// Cause 获取已发此异常的原因（即原始异常）
-func (e *CommonException) Causes() []error {
-	return e.causes
-}
-
 func newCommonException(code int, message string, causes ...error) Exception {
 	return &CommonException{
 		code:    code,
 		message: message,
-		causes:  causes,
 	}
 }
 
 // New 创建一个Code为819的常规异常，如需要自定义code，请使用 exceptions.Code
-func New(message string, causes ...error) Exception {
-	return newCommonException(CommonExceptionCode, message, causes...)
+func New(message string) Exception {
+	return newCommonException(CommonExceptionCode, message)
+}
+
+// NewF 创建一个Code为819的常规异常，如需要自定义code，请使用 exceptions.Code
+func NewF(format string, args ...interface{}) Exception {
+	return New(fmt.Sprintf(format, args...))
 }
 
 // Code 创建一个自定义Code的异常
-func Code(code int, message string, causes ...error) Exception {
-	return newCommonException(code, message, causes...)
+func Code(code int, message string) Exception {
+	return newCommonException(code, message)
+}
+
+// CodeF 创建一个自定义Code的异常
+func CodeF(code int, format string, args ...interface{}) Exception {
+	return Code(code, fmt.Sprintf(format, args...))
+}
+
+// CallStack 获取调用堆栈
+func CallStack() []string {
+	stack := []string{}
+
+	for i := 1; ; i++ {
+		_, file, line, got := runtime.Caller(i)
+		if !got {
+			break
+		}
+		stack = append(stack, fmt.Sprintf("%s:%d", file, line))
+	}
+
+	return stack
 }
