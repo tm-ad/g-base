@@ -90,7 +90,7 @@ func TestNew_Error_out_json(t *testing.T) {
 }
 
 func TestCallStack(t *testing.T) {
-	Convey("检查callstack是否返回数量正确的堆栈", t, func() {
+	Convey(`检查callstack是否返回数量正确的堆栈`, t, func() {
 		s := CallStack()
 
 		So(len(s), ShouldEqual, 16)
