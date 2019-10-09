@@ -13,7 +13,7 @@ func WorkingPath(offset string) string {
 		wp := os.Getenv("GO_WORKING_PATH")
 
 		if wp != "" {
-			wp = path.Clean(wp)
+			wp = filepath.ToSlash(path.Clean(wp))
 			return path.Join(wp, offset)
 		}
 	}
