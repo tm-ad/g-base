@@ -13,7 +13,7 @@ func WorkingPath(offset string) string {
 		wp := os.Getenv("GO_WORKING_PATH")
 
 		if wp != "" {
-			return wp
+			return path.Join(Dir(wp), offset)
 		}
 	}
 
