@@ -9,7 +9,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/kataras/pio/terminal"
+	"github.com/tm-ad/g-base/util/pio/terminal"
 )
 
 type (
