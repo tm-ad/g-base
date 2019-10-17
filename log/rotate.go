@@ -135,7 +135,7 @@ func NewRotateFileLog(root, name, lvl, pattern string, rotationTime, maxAge time
 
 	// 检查并创建日志根目录
 	if err := fs.Mkdir(root); err != nil {
-		fmt.Printf(`log root initialize failed: %v \n`, err)
+		TipInDevelopment(fmt.Sprintf(`log root initialize failed: %v \n`, err))
 	}
 	baseLogName := path.Join(root, defaultName(name))
 	// 构建 rotate log file

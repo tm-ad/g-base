@@ -1,8 +1,11 @@
 package log
 
 import (
+	"github.com/tm-ad/g-base/util"
 	"time"
 )
+
+var _loggerInDevelopment *Logger
 
 // A Log represents a log line.
 type Log struct {
@@ -30,4 +33,14 @@ func (l Log) FormatTime() string {
 		return ""
 	}
 	return l.Time.Format(l.Logger.TimeFormat)
+}
+
+// TipInDevelopment 提供在开发模式下提示开发人员处理的信息
+func TipInDevelopment(msg string) {
+	if util.Development() {
+		if _loggerInDevelopment == nil {
+			_loggerInDevelopment = New()
+		}
+		_loggerInDevelopment.Warn(msg)
+	}
 }
