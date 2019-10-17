@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/tm-ad/g-base/exceptions"
 	"github.com/tm-ad/g-base/util"
 	"time"
 )
@@ -42,5 +43,6 @@ func TipInDevelopment(msg string) {
 			_loggerInDevelopment = New()
 		}
 		_loggerInDevelopment.Warn(msg)
+		_loggerInDevelopment.Warn(exceptions.CallStack())
 	}
 }
