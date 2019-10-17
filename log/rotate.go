@@ -129,13 +129,14 @@ func (g *cleanupGuard) Run() {
 //	pattern: 文件名的格式化字符串，如 %Y-%m-%d
 //	rotationTime: 文件切分的间隔
 //	maxAge: 文件最大的时间有效期
-// 	suspFileInDev: 是否在 development 模式下挂起日志文件编写
 func NewRotateFileLog(root, name, lvl, pattern string, rotationTime, maxAge time.Duration) (*Logger, error) {
 	l := New()
 	l.SetLevel(defaultLevel(lvl))
 
 	// 检查并创建日志根目录
-	fs.Mkdir(root)
+	if err := fs.Mkdir(root); err != nil {
+		fmt.Printf(`log root initialize failed: %v \n`, err)
+	}
 	baseLogName := path.Join(root, defaultName(name))
 	// 构建 rotate log file
 	writer, err := NewRotateWriter(
