@@ -25,3 +25,17 @@ func TestSmokeGoroutineId(t *testing.T) {
 		<-block
 	})
 }
+
+func TestSmokeRunGoroutine(t *testing.T) {
+	Convey("检查RunRoutine是否可以正确设置父子关系", t, func(c C) {
+		parentId := CurGoroutineID()
+		block := make(chan bool, 1)
+		RunRoutine(func() {
+			// childId := CurGoroutineID()
+			parentIdFound := FindRootRoutineId()
+			c.So(parentId, ShouldEqual, parentIdFound)
+			close(block)
+		})
+		<-block
+	})
+}

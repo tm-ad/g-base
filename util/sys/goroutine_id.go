@@ -177,15 +177,19 @@ func FindRootRoutineId() uint64 {
 func RunRoutine(rFunc func()) {
 	parentRoutineId := CurGoroutineID()
 	go func() {
-		// 检查是否存在当前的routine id
-		defer routineMapLocker.Unlock()
-		routineMapLocker.Lock()
 		curRoutineId := CurGoroutineID()
-		preParentRoutineId, found := routineMap[curRoutineId]
-		if !found || preParentRoutineId != parentRoutineId {
-			routineMap[curRoutineId] = parentRoutineId
-		}
-		// routineMapLocker.Unlock()
+		func() {
+			// 检查是否存在当前的routine id
+			defer routineMapLocker.Unlock()
+			routineMapLocker.Lock()
+			preParentRoutineId, found := routineMap[curRoutineId]
+			fmt.Println(preParentRoutineId)
+			if !found || preParentRoutineId != parentRoutineId {
+				routineMap[curRoutineId] = parentRoutineId
+			}
+			// routineMapLocker.Unlock()
+		}()
+
 		// 退出后推出
 		defer func() {
 			defer routineMapLocker.Unlock()
