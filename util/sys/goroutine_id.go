@@ -162,7 +162,7 @@ func FindRootRoutineId() uint64 {
 	}
 
 	for {
-		if !found {
+		if found {
 			cachedParentId = parentId
 			break
 		}
@@ -183,7 +183,6 @@ func RunRoutine(rFunc func()) {
 			defer routineMapLocker.Unlock()
 			routineMapLocker.Lock()
 			preParentRoutineId, found := routineMap[curRoutineId]
-			fmt.Println(preParentRoutineId)
 			if !found || preParentRoutineId != parentRoutineId {
 				routineMap[curRoutineId] = parentRoutineId
 			}
