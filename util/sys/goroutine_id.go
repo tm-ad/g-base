@@ -178,19 +178,21 @@ func RunRoutine(rFunc func()) {
 	parentRoutineId := CurGoroutineID()
 	go func() {
 		// 检查是否存在当前的routine id
-		curRoutineId := CurGoroutineID()
+		defer routineMapLocker.Unlock()
 		routineMapLocker.Lock()
+		curRoutineId := CurGoroutineID()
 		preParentRoutineId, found := routineMap[curRoutineId]
 		if !found || preParentRoutineId != parentRoutineId {
 			routineMap[curRoutineId] = parentRoutineId
 		}
-		routineMapLocker.Unlock()
+		// routineMapLocker.Unlock()
 		// 退出后推出
 		defer func() {
+			defer routineMapLocker.Unlock()
 			routineMapLocker.Lock()
 			delete(routineMap, curRoutineId)
 			delete(routineDirectMap, curRoutineId)
-			routineMapLocker.Unlock()
+			// routineMapLocker.Unlock()
 		}()
 		// 执行
 		rFunc()
