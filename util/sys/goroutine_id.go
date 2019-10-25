@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math/rand"
 	"runtime"
 	"strconv"
 	"sync"
@@ -23,7 +24,6 @@ func parseUintBytes(s []byte, base int, bitSize int) (n uint64, err error) {
 	if bitSize == 0 {
 		bitSize = int(strconv.IntSize)
 	}
-
 	s0 := s
 	switch {
 	case len(s) < 1:
@@ -130,4 +130,69 @@ func CurGoroutineID() uint64 {
 		panic(fmt.Sprintf("Failed to parse goroutine ID out of %q: %v", b, err))
 	}
 	return n
+}
+
+var routineMapLocker sync.Mutex
+var routineMap = make(map[uint64]uint64)
+var routineDirectMap = make(map[uint64]uint64)
+
+// FindRootRoutineId 寻找最顶级父routine的id
+func FindRootRoutineId() uint64 {
+	curRoutineId := CurGoroutineID()
+	var parentId uint64
+	var found bool
+	parentId, found = routineMap[curRoutineId]
+	// 特例处理首次就没找到，则认为此 routine 为顶级
+	if !found {
+		return curRoutineId
+	}
+
+	// 增加从缓存中获取
+	cachedParentId, cacheFound := routineDirectMap[curRoutineId]
+	if cacheFound {
+		// 1/20 几率重新计算
+		// TODO: 需要尝试压测
+		rnd := rand.Intn(20)
+		if rnd == 5 {
+			cacheFound = false
+		}
+	}
+	if cacheFound {
+		return cachedParentId
+	}
+
+	for {
+		if !found {
+			cachedParentId = parentId
+			break
+		}
+		parentId, found = routineMap[parentId]
+	}
+
+	return cachedParentId
+}
+
+// RunRoutine 提供一个封装的 go goroutine 启动方法
+// 	该方法会在运行环境中建立 parent goroutine id 和 current goroutine id 的 map 映射
+func RunRoutine(rFunc func()) {
+	parentRoutineId := CurGoroutineID()
+	go func() {
+		// 检查是否存在当前的routine id
+		curRoutineId := CurGoroutineID()
+		routineMapLocker.Lock()
+		preParentRoutineId, found := routineMap[curRoutineId]
+		if !found || preParentRoutineId != parentRoutineId {
+			routineMap[curRoutineId] = parentRoutineId
+		}
+		routineMapLocker.Unlock()
+		// 退出后推出
+		defer func() {
+			routineMapLocker.Lock()
+			delete(routineMap, curRoutineId)
+			delete(routineDirectMap, curRoutineId)
+			routineMapLocker.Unlock()
+		}()
+		// 执行
+		rFunc()
+	}()
 }
