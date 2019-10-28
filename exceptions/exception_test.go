@@ -1,8 +1,9 @@
-package exceptions
+package exceptions_test
 
 import (
 	"errors"
 	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/tm-ad/g-base/exceptions"
 	"testing"
 )
 

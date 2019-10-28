@@ -1,7 +1,8 @@
-package mapset
+package mapset_test
 
 import (
 	"fmt"
+	. "github.com/tm-ad/g-base/mapset"
 )
 
 type YourType struct {

@@ -1,6 +1,7 @@
-package mapset
+package mapset_test
 
 import (
+	. "github.com/tm-ad/g-base/mapset"
 	"math/rand"
 	"testing"
 )

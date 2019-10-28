@@ -23,10 +23,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package mapset
+package mapset_test
 
 import (
 	"encoding/json"
+	. "github.com/tm-ad/g-base/mapset"
 	"math/rand"
 	"runtime"
 	"sync"

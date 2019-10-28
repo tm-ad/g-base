@@ -1,7 +1,8 @@
-package strftime
+package strftime_test
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/tm-ad/g-base/util/strftime"
 	"testing"
 	"time"
 )

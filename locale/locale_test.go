@@ -1,8 +1,9 @@
-package locale
+package locale_test
 
 import (
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/tm-ad/g-base/locale"
 	"testing"
 )
 
